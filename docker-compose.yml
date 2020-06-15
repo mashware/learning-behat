@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+      target: basic
+    volumes:
+      - ./public:/var/www/html
+    ports:
+      - ${NGINX_PORT}:80
+    depends_on:
+      - php
+    networks:
+      - network_rulestorm_default
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: development
+    volumes:
+      - .:/var/app
+      - ~/.composer:/.composer
+    networks:
+      - network_rulestorm_default
+
+  postgres:
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rulestorm
+    ports:
+      - ${POSTGRES_PORT}:5432
+    networks:
+      - network_rulestorm_default
+
+networks:
+  network_rulestorm_default:
+    driver: bridge
