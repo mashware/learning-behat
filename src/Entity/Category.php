@@ -3,14 +3,20 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Table(name="product")
+ * @ORM\Table(name="categories")
  * @ORM\Entity()
  */
 class Category
 {
+    /**
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
     private int $id;
 
     /**
@@ -26,13 +32,13 @@ class Category
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Product", mappedBy="category", orphanRemoval = true, cascade={"persist", "remove"})
      */
-    private array $products;
+    private ArrayCollection $products;
 
-    public function __construct(string $name, string $description, array $products = [])
+    public function __construct(string $name, string $description)
     {
         $this->name = $name;
         $this->description = $description;
-        $this->products = $products;
+        $this->products = new ArrayCollection();
     }
 
     public function getId(): int
@@ -60,12 +66,12 @@ class Category
         $this->description = $description;
     }
 
-    public function getProducts(): array
+    public function getProducts(): ArrayCollection
     {
         return $this->products;
     }
 
-    public function setProducts(array $products): void
+    public function setProducts(ArrayCollection $products): void
     {
         $this->products = $products;
     }

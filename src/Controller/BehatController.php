@@ -19,14 +19,11 @@ class BehatController extends AbstractController
     /**
      * @Route("/category", name="create_category", methods={"POST"})
      *
-     * @throws NonUniqueResultException
-     * @throws ORMException
-     * @throws OptimisticLockException
      * @throws Exception
      */
     public function createCategory(Request $request): JsonResponse
     {
-        $em = $this->get('doctrine.orm.default_entity_manager');
+        $em = $entityManager = $this->getDoctrine()->getManager();
 
         $category = new Category(
             $request->get('name'),
@@ -34,7 +31,7 @@ class BehatController extends AbstractController
         );
 
         $em->persist($category);
-        $em->flush($category);
+        $em->flush();
 
         return new JsonResponse([], 201);
     }
@@ -42,13 +39,11 @@ class BehatController extends AbstractController
     /**
      * @Route("/category/{id}", name="get_category", methods={"GET"})
      *
-     * @throws NonUniqueResultException
-     * @throws ORMException
      * @throws Exception
      */
     public function getCategory(Request $request): JsonResponse
     {
-        $em = $this->get('doctrine.orm.default_entity_manager');
+        $em = $entityManager = $this->getDoctrine()->getManager();
 
         /** @var Product $category */
         $category = $em->createQueryBuilder()
@@ -69,16 +64,13 @@ class BehatController extends AbstractController
     /**
      * @Route("/category/{id}", name="delete_category", methods={"DELETE"})
      *
-     * @throws NonUniqueResultException
-     * @throws ORMException
-     * @throws OptimisticLockException
      * @throws Exception
      */
     public function deleteCategory(Request $request): JsonResponse
     {
-        $em = $this->get('doctrine.orm.default_entity_manager');
+        $em = $entityManager = $this->getDoctrine()->getManager();
 
-        /** @var Product $category */
+        /** @var Category $category */
         $category = $em->createQueryBuilder()
             ->select('c')
             ->from(Category::class, 'c')
@@ -92,7 +84,7 @@ class BehatController extends AbstractController
         }
 
         $em->remove($category);
-        $em->flush($category);
+        $em->flush();
 
         return new JsonResponse([], 200);
     }
@@ -104,9 +96,9 @@ class BehatController extends AbstractController
      */
     public function listCategory(Request $request): JsonResponse
     {
-        $em = $this->get('doctrine.orm.default_entity_manager');
+        $em = $entityManager = $this->getDoctrine()->getManager();
 
-        /** @var Product $product */
+        /** @var Category $category */
         $categories = $em->createQueryBuilder()
             ->select('c')
             ->from(Category::class, 'c')
@@ -124,15 +116,13 @@ class BehatController extends AbstractController
     /**
      * @Route("/product", name="create_product", methods={"POST"})
      *
-     * @throws NonUniqueResultException
-     * @throws ORMException
-     * @throws OptimisticLockException
      * @throws Exception
      */
     public function createProduct(Request $request): JsonResponse
     {
-        $em = $this->get('doctrine.orm.default_entity_manager');
+        $em = $entityManager = $this->getDoctrine()->getManager();
 
+        /** @var Category $category */
         $category = $em->createQueryBuilder()
             ->select('c')
             ->from(Category::class, 'c')
@@ -147,12 +137,11 @@ class BehatController extends AbstractController
 
         $product = new Product(
             $request->get('name'),
-            $request->get('description'),
-            $category
+            $request->get('description')
         );
 
         $em->persist($product);
-        $em->flush($product);
+        $em->flush();
 
         return new JsonResponse([], 201);
     }
@@ -160,13 +149,11 @@ class BehatController extends AbstractController
     /**
      * @Route("/product/{id}", name="get_product", methods={"GET"})
      *
-     * @throws NonUniqueResultException
-     * @throws ORMException
      * @throws Exception
      */
     public function getProduct(Request $request): JsonResponse
     {
-        $em = $this->get('doctrine.orm.default_entity_manager');
+        $em = $entityManager = $this->getDoctrine()->getManager();
 
         /** @var Product $product */
         $product = $em->createQueryBuilder()
@@ -187,14 +174,11 @@ class BehatController extends AbstractController
     /**
      * @Route("/product/{id}", name="delete_product", methods={"DELETE"})
      *
-     * @throws NonUniqueResultException
-     * @throws ORMException
-     * @throws OptimisticLockException
      * @throws Exception
      */
     public function deleteProduct(Request $request): JsonResponse
     {
-        $em = $this->get('doctrine.orm.default_entity_manager');
+        $em = $entityManager = $this->getDoctrine()->getManager();
 
         /** @var Product $product */
         $product = $em->createQueryBuilder()
@@ -210,7 +194,7 @@ class BehatController extends AbstractController
         }
 
         $em->remove($product);
-        $em->flush($product);
+        $em->flush();
 
         return new JsonResponse([], 200);
     }
@@ -222,7 +206,7 @@ class BehatController extends AbstractController
      */
     public function listProduct(Request $request): JsonResponse
     {
-        $em = $this->get('doctrine.orm.default_entity_manager');
+        $em = $entityManager = $this->getDoctrine()->getManager();
 
         /** @var Product $product */
         $products = $em->createQueryBuilder()

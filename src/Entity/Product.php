@@ -6,12 +6,11 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Table(name="product")
+ * @ORM\Table(name="products")
  * @ORM\Entity()
  */
 class Product
 {
-
     /**
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -30,16 +29,15 @@ class Product
     private string $description;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Category")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="products")
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      */
-    private Category $category;
+    private ?Category $category;
 
-    public function __construct(string $name, string $description, Category $category)
+    public function __construct(string $name, string $description)
     {
         $this->name = $name;
         $this->description = $description;
-        $this->category = $category;
     }
 
     public function getId(): int
@@ -67,12 +65,12 @@ class Product
         $this->description = $description;
     }
 
-    public function getCategory(): Category
+    public function getCategory(): ?Category
     {
         return $this->category;
     }
 
-    public function setCategory(Category $category): void
+    public function setCategory(?Category $category): void
     {
         $this->category = $category;
     }
