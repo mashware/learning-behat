@@ -1,0 +1,24 @@
+default:
+  suites:
+    default:
+      paths: [tests/features]
+      contexts:
+        - App\Tests\Behat\FeatureContext:
+            - '@kernel'
+            - '@doctrine.orm.entity_manager'
+        - Behat\MinkExtension\Context\MinkContext
+        - behatch:context:json
+        - behatch:context:rest
+
+  extensions:
+    Behat\Symfony2Extension:
+      kernel:
+        class: App\Kernel
+        bootstrap: config/bootstrap.php
+        env: test
+    Behat\MinkExtension:
+      base_url: "http://localhost:8070/api/v1"
+      sessions:
+        my_session:
+          symfony2: ~
+    Behatch\Extension: ~

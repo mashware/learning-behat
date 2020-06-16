@@ -8,6 +8,24 @@
     "behat/mink": {
         "version": "v1.8.1"
     },
+    "behat/mink-browserkit-driver": {
+        "version": "v1.3.4"
+    },
+    "behat/symfony2-extension": {
+        "version": "2.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "2.1",
+            "ref": "af4f8fa93b1fee9e6f15d1e208ce743bb31cb2b2"
+        },
+        "files": [
+            "behat.yml.dist",
+            "features/bootstrap/FeatureContext.php",
+            "features/bootstrap/bootstrap.php",
+            "features/demo.feature"
+        ]
+    },
     "behat/transliterator": {
         "version": "v1.3.0"
     },
@@ -156,6 +174,9 @@
     "symfony/css-selector": {
         "version": "v5.1.1"
     },
+    "symfony/debug": {
+        "version": "v4.4.10"
+    },
     "symfony/dependency-injection": {
         "version": "v5.1.1"
     },
@@ -226,6 +247,9 @@
     "symfony/inflector": {
         "version": "v5.1.1"
     },
+    "symfony/mime": {
+        "version": "v4.4.10"
+    },
     "symfony/orm-pack": {
         "version": "v1.0.8"
     },
@@ -245,6 +269,9 @@
         ]
     },
     "symfony/polyfill-intl-grapheme": {
+        "version": "v1.17.0"
+    },
+    "symfony/polyfill-intl-idn": {
         "version": "v1.17.0"
     },
     "symfony/polyfill-intl-normalizer": {
