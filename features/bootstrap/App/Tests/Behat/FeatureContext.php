@@ -3,22 +3,23 @@
 namespace App\Tests\Behat;
 
 use Behat\Behat\Context\Context;
-use Behat\Gherkin\Node\PyStringNode;
-use Behat\Gherkin\Node\TableNode;
+use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\Persistence\ObjectManager;
 
-/**
- * Defines application features from the specific context.
- */
 class FeatureContext implements Context
 {
-    /**
-     * Initializes context.
-     *
-     * Every scenario gets its own context instance.
-     * You can also pass arbitrary arguments to the
-     * context constructor through behat.yml.
-     */
-    public function __construct()
-    {
+    public function __construct(Registry $doctrine) {
+        /** @var ObjectManager[] $managers */
+        $managers = $doctrine->getManagers();
+
+        foreach ($managers as $manager) {
+            if ($manager instanceof EntityManagerInterface) {
+                $schemaTool = new SchemaTool($manager);
+                $schemaTool->dropDatabase();
+                $schemaTool->createSchema($manager->getMetadataFactory()->getAllMetadata());
+            }
+        }
     }
 }
