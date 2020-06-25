@@ -11,9 +11,12 @@ use Symfony\Component\HttpFoundation\Request;
 class FeatureContext implements Context
 {
     private Kernel $kernel;
+    private $response;
 
     public function __construct(Kernel $kernel, EntityManagerInterface $manager) {
         $this->kernel = $kernel;
+        $this->response = null;
+
         if ($manager instanceof EntityManagerInterface) {
             $schemaTool = new SchemaTool($manager);
             $schemaTool->dropDatabase();
