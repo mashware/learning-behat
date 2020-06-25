@@ -2,129 +2,40 @@
 
 namespace App\Tests\Behat;
 
-use Assert\Assertion;
-use Assert\AssertionFailedException;
-use Behat\Mink\Exception\DriverException;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
-use Behat\MinkExtension\Context\RawMinkContext;
+use App\Kernel;
+use Behat\Behat\Context\Context;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\HttpKernel\KernelInterface;
+use Doctrine\ORM\Tools\SchemaTool;
+use Symfony\Component\HttpFoundation\Request;
 
-final class FeatureContext extends RawMinkContext
+class FeatureContext implements Context
 {
-    private static $app;
-    private static $dbalConnection;
-    
-    public function __construct(KernelInterface $kernel, EntityManagerInterface $em)
-    {
-        self::$app = new Application($kernel);
-        self::$app->setAutoExit(false);
-        self::$dbalConnection = $em->getConnection();
-    }
-    
-    /**
-     * @BeforeSuite
-     */
-    public static function initializeEnvironment(): void
-    {
-        echo 'Initializing ...';
-    }
-    
-    /**
-     * @AfterSuite
-     *
-     * @throws Exception
-     */
-    public static function restoreEnvironment(): void
-    {
-        self::loadFixtures();
-    }
-    
-    /**
-     * @Given the environment with fixtures
-     *
-     * @throws Exception
-     */
-    public static function loadFixtures(): void
-    {
-        $arg = new ArrayInput(
-            [
-                'command' => 'doctrine:fixtures:load',
-                '--no-interaction' => true,
-            ]
-        );
-        
-        $output = new BufferedOutput();
-        $result = self::$app->run($arg, $output);
-        
-        if (0 !== $result) {
-            $error = $output->fetch();
-            echo 'Error detected: '.$error;
-        } else {
-            echo 'Database restored ... '.PHP_EOL;
+    private Kernel $kernel;
+
+    public function __construct(Kernel $kernel, EntityManagerInterface $manager) {
+        $this->kernel = $kernel;
+        if ($manager instanceof EntityManagerInterface) {
+            $schemaTool = new SchemaTool($manager);
+            $schemaTool->dropDatabase();
+            $schemaTool->createSchema($manager->getMetadataFactory()->getAllMetadata());
         }
     }
-    
+
     /**
-     * @Given the environment is clean
-     *
-     * @throws Exception
+     * @When a demo scenario sends a request to :path
      */
-    public static function cleanEnvironment(): void
+    public function aDemoScenarioSendsARequestTo(string $path)
     {
-        $tables = self::$dbalConnection->getSchemaManager()->listTables();
-        
-        foreach ($tables as $theTable) {
-            $tableName = $theTable->getName();
-            
-            if ('migration_versions' === $tableName) {
-                continue;
-            }
-            
-            self::$dbalConnection->executeQuery('TRUNCATE '.$tableName.' CASCADE');
+        $this->response = $this->kernel->handle(Request::create($path, 'GET'));
+    }
+
+    /**
+     * @Then the response should be received
+     */
+    public function theResponseShouldBeReceived()
+    {
+        if ($this->response === null) {
+            throw new \RuntimeException('No response received');
         }
-        
-        echo 'Cleaned ...'.PHP_EOL;
-    }
-    
-    /**
-     * @Given /^the response json should have a "([^"]*)" key$/
-     *
-     * @throws DriverException
-     * @throws UnsupportedDriverActionException
-     * @throws AssertionFailedException
-     */
-    public function theResponseJsonShouldHaveAKey(string $keyName): void
-    {
-        $content = json_decode($this->getResponseContent(), true);
-        
-        Assertion::keyExists($content, $keyName);
-    }
-    
-    /**
-     * @Given /^the response json should contains (?P<numberOfElements>\d+) elements$/
-     *
-     * @throws DriverException
-     * @throws UnsupportedDriverActionException
-     * @throws AssertionFailedException
-     */
-    public function theResponseJsonShouldContainsElements(int $numberOfElements): void
-    {
-        $content = json_decode($this->getResponseContent(), true);
-        
-        Assertion::count($content, $numberOfElements);
-    }
-    
-    /**
-     * @throws DriverException
-     * @throws UnsupportedDriverActionException
-     */
-    private function getResponseContent(): string
-    {
-        return $this->getSession()->getDriver()->getContent();
     }
 }
