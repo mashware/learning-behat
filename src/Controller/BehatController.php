@@ -118,13 +118,14 @@ class BehatController extends AbstractController
     public function createProduct(Request $request): JsonResponse
     {
         $em = $entityManager = $this->getDoctrine()->getManager();
+        $decodedRequest = json_decode($request->getContent());
 
         /** @var Category $category */
         $category = $em->createQueryBuilder()
             ->select('c')
             ->from(Category::class, 'c')
             ->where('c.id = :id')
-            ->setParameter('id', $request->get('category_id'))
+            ->setParameter('id', $decodedRequest->category_id)
             ->getQuery()
             ->getOneOrNullResult();
 
@@ -133,9 +134,11 @@ class BehatController extends AbstractController
         }
 
         $product = new Product(
-            $request->get('name'),
-            $request->get('description')
+            $decodedRequest->id,
+            $decodedRequest->name,
+            $decodedRequest->description
         );
+        $product->setCategory($category);
 
         $em->persist($product);
         $em->flush();

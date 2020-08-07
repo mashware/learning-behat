@@ -7,16 +7,15 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="products")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="App\Entity\ProductRepository")
  */
 class Product
 {
     /**
-     * @ORM\Column(name="id", type="integer")
+     * @ORM\Column(name="id", type="string")
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private int $id;
+    private string $id;
 
     /**
      * @ORM\Column(name="name", type="string", length=255)
@@ -34,13 +33,15 @@ class Product
      */
     private ?Category $category;
 
-    public function __construct(string $name, string $description)
+    public function __construct(string $id, string $name, string $description)
     {
+        $this->id = $id;
         $this->name = $name;
         $this->description = $description;
+        $this->category = null;
     }
 
-    public function getId(): int
+    public function getId(): string
     {
         return $this->id;
     }
@@ -81,7 +82,7 @@ class Product
             'id' => $this->getId(),
             'name' => $this->getName(),
             'description' => $this->getDescription(),
-            'category' => $this->category->toArray()
+            'category' => null !== $this->category ? $this->category->toArray() : null
         ];
     }
 }

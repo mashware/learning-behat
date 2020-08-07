@@ -1,11 +1,12 @@
 default:
   suites:
     default:
-      paths: [tests/features]
+      paths: ['tests/features']
       contexts:
         - App\Tests\Behat\FeatureContext:
             - '@kernel'
             - '@doctrine.orm.entity_manager'
+        - test.product.product_creation.context
         - Behat\MinkExtension\Context\MinkContext
         - behatch:context:json
         - behatch:context:rest
@@ -22,3 +23,20 @@ default:
         my_session:
           symfony2: ~
     Behatch\Extension: ~
+
+acceptance:
+    suites:
+        demo:
+            paths:
+                - ['tests/features']
+            contexts:
+                - test.product.product_creation.context
+            filters:
+                tags: '@acceptance-back'
+    extensions:
+        FriendsOfBehat\SymfonyExtension:
+            bootstrap: config/bootstrap.php
+            kernel:
+                class: App\Kernel
+                bootstrap: config/bootstrap.php
+                env: test
